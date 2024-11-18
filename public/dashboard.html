@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - PennyWise</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="dashboard-page">
+    <nav class="navbar glass-effect">
+        <div class="nav-content">
+            <div class="logo">
+                <i class="fas fa-wallet gradient-text"></i>
+                <span>PennyWise</span>
+            </div>
+            <div class="nav-links">
+                <div class="user-profile" id="userProfileBtn">
+                    <img src="https://placehold.co/40" alt="Profile" class="profile-image">
+                    <span class="user-name">John Doe</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-menu">
+                <a href="#" class="menu-item active" data-page="overview">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Overview</span>
+                </a>
+                <a href="#" class="menu-item" data-page="transactions">
+                    <i class="fas fa-wallet"></i>
+                    <span>Transactions</span>
+                </a>
+                <a href="#" class="menu-item" data-page="analytics">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+                <div class="settings-menu">
+                    <button class="settings-toggle">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                    <div class="settings-dropdown">
+                        <a href="#" id="profileSettings" class="dropdown-item">
+                            <i class="fas fa-user"></i> Profile
+                        </a>
+                        <a href="#" id="logoutBtn" class="dropdown-item">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="dashboard-main">
+            <div class="dashboard-header">
+                <h1>Financial Overview</h1>
+                <button id="addExpenseBtn" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Expense
+                </button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card income">
+                    <div class="stat-icon">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3>Total Income</h3>
+                        <div class="stat-amount-container">
+                            <span>$</span>
+                            <input type="number" class="stat-amount-input" id="incomeInput" value="0.00" min="0" step="0.01">
+                        </div>
+                        <span class="stat-change positive">Click to edit</span>
+                    </div>
+                </div>
+                <div class="stat-card expenses">
+                    <div class="stat-icon">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3>Total Expenses</h3>
+                        <div class="stat-amount-container">
+                            <span>$</span>
+                            <input type="number" class="stat-amount-input" id="expensesInput" value="0.00" min="0" step="0.01">
+                        </div>
+                        <span class="stat-change negative">Click to edit</span>
+                    </div>
+                </div>
+                <div class="stat-card balance">
+                    <div class="stat-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3>Net Balance</h3>
+                        <div class="stat-amount-container">
+                            <span>$</span>
+                            <span id="netBalance" class="stat-amount">0.00</span>
+                        </div>
+                        <span class="stat-change">Auto-calculated</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="expenses-section">
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3>Expense Distribution</h3>
+                        <canvas id="expenseChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Monthly Trend</h3>
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Category Comparison</h3>
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="section-header">
+                    <h2>Recent Expenses</h2>
+                    <div class="section-actions">
+                        <select class="filter-select">
+                            <option value="all">All Categories</option>
+                            <option value="food">Food & Dining</option>
+                            <option value="transport">Transportation</option>
+                            <option value="utilities">Utilities</option>
+                            <option value="shopping">Shopping</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="expenses-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Category</th>
+                                <th>Amount</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expensesTableBody">
+                            <!-- Expenses will be dynamically added here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Expense Modal -->
+    <div id="expenseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Expense</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="expenseForm">
+                    <div class="form-group">
+                        <label for="expenseTitle">Title</label>
+                        <input type="text" id="expenseTitle" name="title" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="expenseAmount">Amount</label>
+                        <input type="number" id="expenseAmount" name="amount" step="0.01" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="expenseCategory">Category</label>
+                        <select id="expenseCategory" name="category" required>
+                            <option value="">Select a category</option>
+                            <option value="Food">Food</option>
+                            <option value="Transport">Transport</option>
+                            <option value="Utilities">Utilities</option>
+                            <option value="Entertainment">Entertainment</option>
+                            <option value="Shopping">Shopping</option>
+                            <option value="Health">Health</option>
+                            <option value="Travel">Travel</option>
+                            <option value="Education">Education</option>
+                            <option value="Others">Others</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="expenseDate">Date</label>
+                        <input type="date" id="expenseDate" name="date" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="expenseNotes">Notes (Optional)</label>
+                        <textarea id="expenseNotes" name="notes" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Add Expense</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Settings Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Profile Settings</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="profileForm" class="modal-form">
+                <div class="profile-image-section">
+                    <div class="profile-image-container">
+                        <img src="https://placehold.co/120" alt="Profile" id="profilePreview">
+                        <label for="profileImage" class="image-upload-btn">
+                            <i class="fas fa-camera"></i>
+                        </label>
+                        <input type="file" id="profileImage" accept="image/*" hidden>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="profileName">Full Name</label>
+                    <input type="text" id="profileName" required placeholder="Enter your full name">
+                </div>
+                <div class="form-group">
+                    <label for="profileEmail">Email</label>
+                    <input type="email" id="profileEmail" required placeholder="Enter your email">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="profilePhone">Phone (Optional)</label>
+                        <input type="tel" id="profilePhone" placeholder="Enter your phone number">
+                    </div>
+                    <div class="form-group">
+                        <label for="profileCurrency">Currency</label>
+                        <select id="profileCurrency" name="currency" class="form-control">
+                            <option value="AED">AED - UAE Dirham</option>
+                            <option value="AFN">AFN - Afghan Afghani</option>
+                            <option value="ALL">ALL - Albanian Lek</option>
+                            <option value="AMD">AMD - Armenian Dram</option>
+                            <option value="ANG">ANG - Netherlands Antillean Guilder</option>
+                            <option value="AOA">AOA - Angolan Kwanza</option>
+                            <option value="ARS">ARS - Argentine Peso</option>
+                            <option value="AUD">AUD - Australian Dollar</option>
+                            <option value="AWG">AWG - Aruban Florin</option>
+                            <option value="AZN">AZN - Azerbaijani Manat</option>
+                            <option value="BAM">BAM - Bosnia-Herzegovina Mark</option>
+                            <option value="BBD">BBD - Barbadian Dollar</option>
+                            <option value="BDT">BDT - Bangladeshi Taka</option>
+                            <option value="BGN">BGN - Bulgarian Lev</option>
+                            <option value="BHD">BHD - Bahraini Dinar</option>
+                            <option value="BIF">BIF - Burundian Franc</option>
+                            <option value="BMD">BMD - Bermudan Dollar</option>
+                            <option value="BND">BND - Brunei Dollar</option>
+                            <option value="BOB">BOB - Bolivian Boliviano</option>
+                            <option value="BRL">BRL - Brazilian Real</option>
+                            <option value="BSD">BSD - Bahamian Dollar</option>
+                            <option value="BTN">BTN - Bhutanese Ngultrum</option>
+                            <option value="BWP">BWP - Botswanan Pula</option>
+                            <option value="BYN">BYN - Belarusian Ruble</option>
+                            <option value="BZD">BZD - Belize Dollar</option>
+                            <option value="CAD">CAD - Canadian Dollar</option>
+                            <option value="CDF">CDF - Congolese Franc</option>
+                            <option value="CHF">CHF - Swiss Franc</option>
+                            <option value="CLP">CLP - Chilean Peso</option>
+                            <option value="CNY">CNY - Chinese Yuan</option>
+                            <option value="COP">COP - Colombian Peso</option>
+                            <option value="CRC">CRC - Costa Rican Colón</option>
+                            <option value="CUC">CUC - Cuban Convertible Peso</option>
+                            <option value="CUP">CUP - Cuban Peso</option>
+                            <option value="CVE">CVE - Cape Verdean Escudo</option>
+                            <option value="CZK">CZK - Czech Koruna</option>
+                            <option value="DJF">DJF - Djiboutian Franc</option>
+                            <option value="DKK">DKK - Danish Krone</option>
+                            <option value="DOP">DOP - Dominican Peso</option>
+                            <option value="DZD">DZD - Algerian Dinar</option>
+                            <option value="EGP">EGP - Egyptian Pound</option>
+                            <option value="ERN">ERN - Eritrean Nakfa</option>
+                            <option value="ETB">ETB - Ethiopian Birr</option>
+                            <option value="EUR">EUR - Euro</option>
+                            <option value="FJD">FJD - Fijian Dollar</option>
+                            <option value="FKP">FKP - Falkland Islands Pound</option>
+                            <option value="GBP">GBP - British Pound</option>
+                            <option value="GEL">GEL - Georgian Lari</option>
+                            <option value="GGP">GGP - Guernsey Pound</option>
+                            <option value="GHS">GHS - Ghanaian Cedi</option>
+                            <option value="GIP">GIP - Gibraltar Pound</option>
+                            <option value="GMD">GMD - Gambian Dalasi</option>
+                            <option value="GNF">GNF - Guinean Franc</option>
+                            <option value="GTQ">GTQ - Guatemalan Quetzal</option>
+                            <option value="GYD">GYD - Guyanaese Dollar</option>
+                            <option value="HKD">HKD - Hong Kong Dollar</option>
+                            <option value="HNL">HNL - Honduran Lempira</option>
+                            <option value="HRK">HRK - Croatian Kuna</option>
+                            <option value="HTG">HTG - Haitian Gourde</option>
+                            <option value="HUF">HUF - Hungarian Forint</option>
+                            <option value="IDR">IDR - Indonesian Rupiah</option>
+                            <option value="ILS">ILS - Israeli Shekel</option>
+                            <option value="IMP">IMP - Manx Pound</option>
+                            <option value="INR">INR - Indian Rupee</option>
+                            <option value="IQD">IQD - Iraqi Dinar</option>
+                            <option value="IRR">IRR - Iranian Rial</option>
+                            <option value="ISK">ISK - Icelandic Króna</option>
+                            <option value="JEP">JEP - Jersey Pound</option>
+                            <option value="JMD">JMD - Jamaican Dollar</option>
+                            <option value="JOD">JOD - Jordanian Dinar</option>
+                            <option value="JPY">JPY - Japanese Yen</option>
+                            <option value="KES">KES - Kenyan Shilling</option>
+                            <option value="KGS">KGS - Kyrgystani Som</option>
+                            <option value="KHR">KHR - Cambodian Riel</option>
+                            <option value="KMF">KMF - Comorian Franc</option>
+                            <option value="KPW">KPW - North Korean Won</option>
+                            <option value="KRW">KRW - South Korean Won</option>
+                            <option value="KWD">KWD - Kuwaiti Dinar</option>
+                            <option value="KYD">KYD - Cayman Islands Dollar</option>
+                            <option value="KZT">KZT - Kazakhstani Tenge</option>
+                            <option value="LAK">LAK - Laotian Kip</option>
+                            <option value="LBP">LBP - Lebanese Pound</option>
+                            <option value="LKR">LKR - Sri Lankan Rupee</option>
+                            <option value="LRD">LRD - Liberian Dollar</option>
+                            <option value="LSL">LSL - Lesotho Loti</option>
+                            <option value="LYD">LYD - Libyan Dinar</option>
+                            <option value="MAD">MAD - Moroccan Dirham</option>
+                            <option value="MDL">MDL - Moldovan Leu</option>
+                            <option value="MGA">MGA - Malagasy Ariary</option>
+                            <option value="MKD">MKD - Macedonian Denar</option>
+                            <option value="MMK">MMK - Myanmar Kyat</option>
+                            <option value="MNT">MNT - Mongolian Tugrik</option>
+                            <option value="MOP">MOP - Macanese Pataca</option>
+                            <option value="MRU">MRU - Mauritanian Ouguiya</option>
+                            <option value="MUR">MUR - Mauritian Rupee</option>
+                            <option value="MVR">MVR - Maldivian Rufiyaa</option>
+                            <option value="MWK">MWK - Malawian Kwacha</option>
+                            <option value="MXN">MXN - Mexican Peso</option>
+                            <option value="MYR">MYR - Malaysian Ringgit</option>
+                            <option value="MZN">MZN - Mozambican Metical</option>
+                            <option value="NAD">NAD - Namibian Dollar</option>
+                            <option value="NGN">NGN - Nigerian Naira</option>
+                            <option value="NIO">NIO - Nicaraguan Córdoba</option>
+                            <option value="NOK">NOK - Norwegian Krone</option>
+                            <option value="NPR">NPR - Nepalese Rupee</option>
+                            <option value="NZD">NZD - New Zealand Dollar</option>
+                            <option value="OMR">OMR - Omani Rial</option>
+                            <option value="PAB">PAB - Panamanian Balboa</option>
+                            <option value="PEN">PEN - Peruvian Sol</option>
+                            <option value="PGK">PGK - Papua New Guinean Kina</option>
+                            <option value="PHP">PHP - Philippine Peso</option>
+                            <option value="PKR">PKR - Pakistani Rupee</option>
+                            <option value="PLN">PLN - Polish Złoty</option>
+                            <option value="PYG">PYG - Paraguayan Guarani</option>
+                            <option value="QAR">QAR - Qatari Riyal</option>
+                            <option value="RON">RON - Romanian Leu</option>
+                            <option value="RSD">RSD - Serbian Dinar</option>
+                            <option value="RUB">RUB - Russian Ruble</option>
+                            <option value="RWF">RWF - Rwandan Franc</option>
+                            <option value="SAR">SAR - Saudi Riyal</option>
+                            <option value="SBD">SBD - Solomon Islands Dollar</option>
+                            <option value="SCR">SCR - Seychellois Rupee</option>
+                            <option value="SDG">SDG - Sudanese Pound</option>
+                            <option value="SEK">SEK - Swedish Krona</option>
+                            <option value="SGD">SGD - Singapore Dollar</option>
+                            <option value="SHP">SHP - Saint Helena Pound</option>
+                            <option value="SLL">SLL - Sierra Leonean Leone</option>
+                            <option value="SOS">SOS - Somali Shilling</option>
+                            <option value="SRD">SRD - Surinamese Dollar</option>
+                            <option value="SSP">SSP - South Sudanese Pound</option>
+                            <option value="STN">STN - São Tomé and Príncipe Dobra</option>
+                            <option value="SVC">SVC - Salvadoran Colón</option>
+                            <option value="SYP">SYP - Syrian Pound</option>
+                            <option value="SZL">SZL - Swazi Lilangeni</option>
+                            <option value="THB">THB - Thai Baht</option>
+                            <option value="TJS">TJS - Tajikistani Somoni</option>
+                            <option value="TMT">TMT - Turkmenistani Manat</option>
+                            <option value="TND">TND - Tunisian Dinar</option>
+                            <option value="TOP">TOP - Tongan Paʻanga</option>
+                            <option value="TRY">TRY - Turkish Lira</option>
+                            <option value="TTD">TTD - Trinidad and Tobago Dollar</option>
+                            <option value="TWD">TWD - New Taiwan Dollar</option>
+                            <option value="TZS">TZS - Tanzanian Shilling</option>
+                            <option value="UAH">UAH - Ukrainian Hryvnia</option>
+                            <option value="UGX">UGX - Ugandan Shilling</option>
+                            <option value="USD" selected>USD - US Dollar</option>
+                            <option value="UYU">UYU - Uruguayan Peso</option>
+                            <option value="UZS">UZS - Uzbekistani Som</option>
+                            <option value="VES">VES - Venezuelan Bolívar</option>
+                            <option value="VND">VND - Vietnamese Đồng</option>
+                            <option value="VUV">VUV - Vanuatu Vatu</option>
+                            <option value="WST">WST - Samoan Tala</option>
+                            <option value="XAF">XAF - Central African CFA Franc</option>
+                            <option value="XCD">XCD - East Caribbean Dollar</option>
+                            <option value="XDR">XDR - Special Drawing Rights</option>
+                            <option value="XOF">XOF - West African CFA Franc</option>
+                            <option value="XPF">XPF - CFP Franc</option>
+                            <option value="YER">YER - Yemeni Rial</option>
+                            <option value="ZAR">ZAR - South African Rand</option>
+                            <option value="ZMW">ZMW - Zambian Kwacha</option>
+                            <option value="ZWL">ZWL - Zimbabwean Dollar</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="profileBio">Bio (Optional)</label>
+                    <textarea id="profileBio" rows="3" placeholder="Tell us about yourself"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>
